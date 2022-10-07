@@ -20,4 +20,3 @@ services:
       - POSTGRES_USER=mpeter_taqtile
       - POSTGRES_PASSWORD=
       - POSTGRES_DB=onboard_testdb
-      
