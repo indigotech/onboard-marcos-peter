@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "nodemon src/index.ts",
+    "dev": "ts-node src/index.ts",
     "start": "tsc && nodemon ./dist/index.js",
     "typeorm": "typeorm-ts-node-commonjs"
   },

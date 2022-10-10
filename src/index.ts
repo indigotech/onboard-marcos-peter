@@ -1,6 +1,6 @@
 import { AppDataSource } from './data-source';
 import { User } from './entity/User';
-import { apolloServerRun } from './apolloServer';
+import { apolloServerRun } from './apollo-server';
 
 AppDataSource.initialize()
   .then(async () => {
