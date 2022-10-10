@@ -1,9 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
-import { AppDataSource } from './data-source';
 import { ApolloServer } from 'apollo-server';
 import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
-import { User } from './entity/User';
+import { resolvers } from './resolvers/resolver';
 
 interface UserInput {
   name: string;
@@ -12,26 +11,7 @@ interface UserInput {
   birthdate: string;
 }
 
-async function apolloServerRun() {
-  const resolvers = {
-    Query: {
-      users: () => AppDataSource.manager.getRepository('user').createQueryBuilder('user').getMany(),
-    },
-    Mutation: {
-      createUser: async (parent: any, args: UserInput) => {
-        const newUser = new User();
-        newUser.name = args.name;
-        newUser.email = args.email;
-        newUser.password = args.password;
-        newUser.birthdate = args.birthdate;
-
-        await AppDataSource.manager.save(newUser);
-
-        return newUser;
-      },
-    },
-  };
-
+export async function apolloServerRun() {
   const server = new ApolloServer({
     typeDefs: fs.readFileSync(path.join(__dirname, 'schema.graphql'), 'utf8'),
     resolvers,
@@ -43,5 +23,3 @@ async function apolloServerRun() {
   const serverInfo = await server.listen();
   console.log(`[SERVER] - Server running at ${ serverInfo.url }`);
 }
-
-export { apolloServerRun };
