@@ -6,7 +6,6 @@ import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 import { User } from './entity/User';
 
 interface UserInput {
-  id?: number;
   name: string;
   email: string;
   password: string;
