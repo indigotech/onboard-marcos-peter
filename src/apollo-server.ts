@@ -4,6 +4,13 @@ import { ApolloServer } from 'apollo-server';
 import { ApolloServerPluginLandingPageLocalDefault } from 'apollo-server-core';
 import { resolvers } from './resolvers/resolver';
 
+interface UserInput {
+  name: string;
+  email: string;
+  password: string;
+  birthdate: string;
+}
+
 export async function apolloServerRun() {
   const server = new ApolloServer({
     typeDefs: fs.readFileSync(path.join(__dirname, 'schema.graphql'), 'utf8'),
@@ -14,5 +21,5 @@ export async function apolloServerRun() {
   });
 
   const serverInfo = await server.listen();
-  console.log(`[SERVER] - Server running at ${serverInfo.url}`);
+  console.log(`[SERVER] - Server running at ${ serverInfo.url }`);
 }
