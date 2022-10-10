@@ -7,10 +7,13 @@
     "newLine": "lf",
     "noEmitOnError": true,
     "esModuleInterop": true,
+    "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": true,
     "strict": true,
     "skipLibCheck": true,
     "allowJs": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
     "types": [
       "node"
     ]
