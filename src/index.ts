@@ -11,11 +11,12 @@ AppDataSource.initialize()
     user.password = 'A@123456';
     user.birthdate = '1994-09-27';
     await AppDataSource.manager.save(user);
-    console.log(`[SERVER] - User saved with id: ${user.id}`);
+    console.log(`[SERVER] - User saved with id: ${user.id} and name: ${user.name}`);
 
     console.log('[SERVER] - Loading users from database');
     const users = await AppDataSource.manager.find(User);
-    console.log(`[SERVER] - Users loaded:  ${users}`);
+    console.log(`[SERVER] - Users loaded:`);
+    console.table(users);
   })
   .then(apolloServerRun)
   .catch((error) => console.log(error));
