@@ -1,8 +1,10 @@
 import { CreateUserInput, UserInput, UserOutput } from '../models/user-models';
 import { User } from '../entity/User';
 import { AppDataSource } from '../data-source';
+import { EncryptPassword } from '../utils/encrypt-password';
 
 const userRepo = AppDataSource.getRepository(User);
+const crypt = new EncryptPassword();
 
 async function validateInput(userData: UserInput) {
   const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
@@ -42,7 +44,7 @@ export const resolvers = {
       const newUser = new User();
       newUser.name = args.userData.name;
       newUser.email = args.userData.email;
-      newUser.password = args.userData.password;
+      newUser.password = await crypt.encryptPassword(args.userData.password);
       newUser.birthdate = args.userData.birthdate;
 
       await validateInput(args.userData);
