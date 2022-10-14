@@ -8,7 +8,7 @@ const crypt = new EncryptPassword();
 
 async function validateInput(userData: UserInput) {
   const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
-  if (passwordRegex.test(userData.password) == false) {
+  if (!passwordRegex.test(userData.password)) {
     throw new Error(
       'Password must have between 8 and 16 characters long and must have at least one uppercase, one lowercase letter and one digit.',
     );
