@@ -21,9 +21,11 @@ async function validateInput(userData: UserInput) {
 
   if (!userData.name) {
     throw new Error('Name is required.');
-  } else if (userData.name.length < 3) {
+  }
+  if (userData.name.length < 3) {
     throw new Error('Name must have at least 3 characters.');
-  } else if (!userData.name.trim()) {
+  }
+  if (!userData.name.trim()) {
     throw new Error('Name cannot be empty.');
   }
 
