@@ -6,15 +6,32 @@ import { typeDefs } from './type-defs/type-defs';
 
 const port = 3333;
 
-AppDataSource.initialize()
-  .then(async () => console.log(`Connected to database.`))
-  .catch((error) => console.log(error));
-
 const server = new ApolloServer({
   typeDefs,
   resolvers,
 });
 
-server.listen({ port }).then(({ url }) => {
+const startServer = server.listen({ port }).then(({ url }) => {
   console.log(`[SERVER] - Server running at ${url}`);
 });
+
+export async function runServer(isMain = false) {
+  await AppDataSource.initialize()
+    .then(() => {
+      console.log(`[SERVER] - Connected to database.`);
+      startServer;
+    })
+    .catch((error) => {
+      console.log(`[SERVER: ERROR] - ${error}`);
+      server.stop();
+    });
+
+  if (isMain) {
+    startServer;
+  }
+}
+
+if (require.main === module) {
+  const isMain = true;
+  runServer(isMain);
+}
