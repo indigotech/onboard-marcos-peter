@@ -5,9 +5,9 @@ import { PasswordEncripter } from '../utils/password-encripter';
 
 const userRepo = AppDataSource.getRepository(User);
 const crypt = new PasswordEncripter();
+const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
 
 async function validateInput(userData: UserInput) {
-  const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
   if (!passwordRegex.test(userData.password)) {
     throw new Error(
       'Password must have between 8 and 16 characters long and must have at least one uppercase, one lowercase letter and one digit.',
