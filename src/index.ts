@@ -1,22 +1,37 @@
+import { ApolloServer } from 'apollo-server';
 import { AppDataSource } from './data-source';
-import { User } from './entity/User';
-import { apolloServerRun } from './apollo-server';
+import 'reflect-metadata';
+import { resolvers } from './resolvers/resolver';
+import { typeDefs } from './type-defs/type-defs';
 
-AppDataSource.initialize()
-  .then(async () => {
-    console.log('[SERVER] - Database connected');
-    const user = new User();
-    user.name = 'Marcos Peter';
-    user.email = 'mpeterlobato@gmail.com';
-    user.password = 'A@123456';
-    user.birthdate = '1994-09-27';
-    await AppDataSource.manager.save(user);
-    console.log(`[SERVER] - User saved with id: ${user.id} and name: ${user.name}`);
+const port = 3333;
 
-    console.log('[SERVER] - Loading users from database');
-    const users = await AppDataSource.manager.find(User);
-    console.log(`[SERVER] - Users loaded:`);
-    console.table(users);
-  })
-  .then(apolloServerRun)
-  .catch((error) => console.log(error));
+const server = new ApolloServer({
+  typeDefs,
+  resolvers,
+});
+
+const startServer = server.listen({ port }).then(({ url }) => {
+  console.log(`[SERVER] - Server running at ${url}`);
+});
+
+export async function runServer(isMain = false) {
+  await AppDataSource.initialize()
+    .then(() => {
+      console.log(`[SERVER] - Connected to database.`);
+      startServer;
+    })
+    .catch((error) => {
+      console.log(`[SERVER: ERROR] - ${error}`);
+      server.stop();
+    });
+
+  if (isMain) {
+    startServer;
+  }
+}
+
+if (require.main === module) {
+  const isMain = true;
+  runServer(isMain);
+}

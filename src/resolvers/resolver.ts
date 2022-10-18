@@ -1,27 +1,50 @@
-import { AppDataSource } from '../data-source';
+import { CreateUserInput, UserInput, UserOutput } from '../models/user-models';
 import { User } from '../entity/User';
+import { AppDataSource } from '../data-source';
+import { PasswordEncripter } from '../utils/password-encripter';
 
-interface UserInput {
-  name: string;
-  email: string;
-  password: string;
-  birthdate: string;
+const userRepo = AppDataSource.getRepository(User);
+const crypt = new PasswordEncripter();
+const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
+
+async function validateInput(userData: UserInput) {
+  if (!passwordRegex.test(userData.password)) {
+    throw new Error(
+      'Password must have between 8 and 16 characters long and must have at least one uppercase, one lowercase letter and one digit.',
+    );
+  }
+
+  const emailCount = await userRepo.findAndCountBy({ email: userData.email });
+  if (emailCount[1] >= 1) {
+    throw new Error('Email address already in use.');
+  }
+
+  if (userData.name.length < 3) {
+    throw new Error('Name must have at least 3 characters.');
+  }
+  if (!userData.name.trim()) {
+    throw new Error('Name cannot be empty.');
+  }
+
+  if (!new Date(userData.birthdate).getTime()) {
+    throw new Error('Birthdate must be a valid date.');
+  }
 }
 
 export const resolvers = {
   Query: {
-    users: () => AppDataSource.manager.getRepository('user').createQueryBuilder('user').getMany(),
+    users: () => userRepo.find(),
   },
   Mutation: {
-    createUser: async (parent: any, args: UserInput) => {
+    async createUser(_: unknown, args: CreateUserInput): Promise<UserOutput> {
       const newUser = new User();
-      newUser.name = args.name;
-      newUser.email = args.email;
-      newUser.password = args.password;
-      newUser.birthdate = args.birthdate;
+      newUser.name = args.userData.name;
+      newUser.email = args.userData.email;
+      newUser.password = await crypt.encrypt(args.userData.password);
+      newUser.birthdate = args.userData.birthdate;
 
-      await AppDataSource.manager.save(newUser);
-
+      await validateInput(args.userData);
+      await userRepo.save(newUser);
       return newUser;
     },
   },

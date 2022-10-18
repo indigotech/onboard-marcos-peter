@@ -6,16 +6,18 @@
   },
   "dependencies": {
     "apollo-server": "3.10.2",
+    "bcrypt": "5.1.0",
     "graphql": "16.6.0",
     "pg": "8.8.0",
     "reflect-metadata": "0.1.13",
     "typeorm": "0.3.10"
   },
   "devDependencies": {
+    "@types/bcrypt": "5.0.0",
     "@types/graphql": "14.5.0",
     "@types/node": "18.8.2",
     "@typescript-eslint/eslint-plugin": "5.40.0",
-    "@typescript-eslint/parser": "^5.40.0",
+    "@typescript-eslint/parser": "5.40.0",
     "eslint": "8.25.0",
     "eslint-config-prettier": "8.5.0",
     "eslint-plugin-prettier": "4.2.1",
