@@ -19,9 +19,6 @@ async function validateInput(userData: UserInput) {
     throw new Error('Email address already in use.');
   }
 
-  if (!userData.name) {
-    throw new Error('Name is required.');
-  }
   if (userData.name.length < 3) {
     throw new Error('Name must have at least 3 characters.');
   }
@@ -29,9 +26,6 @@ async function validateInput(userData: UserInput) {
     throw new Error('Name cannot be empty.');
   }
 
-  if (!userData.birthdate) {
-    throw new Error('Birthdate is required.');
-  }
   if (!new Date(userData.birthdate).getTime()) {
     throw new Error('Birthdate must be a valid date.');
   }
