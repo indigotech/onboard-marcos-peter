@@ -1,9 +1,7 @@
 import { CreateUserInput, UserInput, UserOutput } from '../models/user-models';
 import { User } from '../entity/User';
-// import { AppDataSource } from '../data-source';
 import { PasswordEncripter } from '../utils/password-encripter';
 
-// const userRepo = AppDataSource.getRepository(User);
 const crypt = new PasswordEncripter();
 const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
 
@@ -13,11 +11,6 @@ async function validateInput(userData: UserInput) {
       'Password must have between 8 and 16 characters long and must have at least one uppercase, one lowercase letter and one digit.',
     );
   }
-
-  // const emailCount = await userRepo.findAndCountBy({ email: userData.email });
-  // if (emailCount[1] >= 1) {
-  //   throw new Error('Email address already in use.');
-  // }
 
   const emailAlreadyExists = await User.findOneBy({ email: userData.email });
   console.log(emailAlreadyExists);
