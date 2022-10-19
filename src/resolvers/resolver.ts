@@ -1,14 +1,14 @@
 import { CreateUserInput, UserInput, UserOutput } from '../models/user-models';
 import { User } from '../entity/User';
 import { AppDataSource } from '../data-source';
-import { EncryptPassword } from '../utils/encrypt-password';
+import { PasswordEncripter } from '../utils/password-encripter';
 
 const userRepo = AppDataSource.getRepository(User);
-const crypt = new EncryptPassword();
+const crypt = new PasswordEncripter();
+const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
 
 async function validateInput(userData: UserInput) {
-  const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
-  if (passwordRegex.test(userData.password) == false) {
+  if (!passwordRegex.test(userData.password)) {
     throw new Error(
       'Password must have between 8 and 16 characters long and must have at least one uppercase, one lowercase letter and one digit.',
     );
@@ -19,17 +19,13 @@ async function validateInput(userData: UserInput) {
     throw new Error('Email address already in use.');
   }
 
-  if (!userData.name) {
-    throw new Error('Name is required.');
-  } else if (userData.name.length < 3) {
+  if (userData.name.length < 3) {
     throw new Error('Name must have at least 3 characters.');
-  } else if (!userData.name.trim()) {
+  }
+  if (!userData.name.trim()) {
     throw new Error('Name cannot be empty.');
   }
 
-  if (!userData.birthdate) {
-    throw new Error('Birthdate is required.');
-  }
   if (!new Date(userData.birthdate).getTime()) {
     throw new Error('Birthdate must be a valid date.');
   }
@@ -44,7 +40,7 @@ export const resolvers = {
       const newUser = new User();
       newUser.name = args.userData.name;
       newUser.email = args.userData.email;
-      newUser.password = await crypt.encryptPassword(args.userData.password);
+      newUser.password = await crypt.encrypt(args.userData.password);
       newUser.birthdate = args.userData.birthdate;
 
       await validateInput(args.userData);
