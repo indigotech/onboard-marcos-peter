@@ -6,32 +6,24 @@ import { typeDefs } from './type-defs/type-defs';
 
 const port = 3333;
 
-const server = new ApolloServer({
-  typeDefs,
-  resolvers,
-});
-
-const startServer = server.listen({ port }).then(({ url }) => {
-  console.log(`[SERVER] - Server running at ${url}`);
-});
-
-export async function runServer(isMain = false) {
-  await AppDataSource.initialize()
-    .then(() => {
-      console.log(`[SERVER] - Connected to database.`);
-      startServer;
-    })
-    .catch((error) => {
-      console.log(`[SERVER: ERROR] - ${error}`);
-      server.stop();
-    });
-
-  if (isMain) {
-    startServer;
-  }
+export async function runDatabase() {
+  await AppDataSource.initialize().catch((error) => {
+    console.info(`[DATABASE] - ${error}`);
+    console.info('[DATABASE] - Shutting down server...');
+    process.exit();
+  });
 }
 
-if (require.main === module) {
-  const isMain = true;
-  runServer(isMain);
+export function runServer() {
+  const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+  });
+
+  runDatabase();
+
+  server.listen({ port });
+  console.info(`[SERVER] - Server running at http://localhost:${port}/graphql`);
 }
+
+runServer();
