@@ -28,16 +28,16 @@ describe('Test createUser', () => {
     const result = await connection.post('/graphql', { query: query, variables: { input } });
     const user = await User.findOneBy({ email: input.email });
 
-    const passwordsMatch = await crypt.isEqual(input.password, user!.password);
+    const passwordsMatch = await crypt.isEqual(input.password, user.password);
 
-    expect(user!.id).to.be.eq(user!.id);
-    expect(user!.name).to.be.eq(input.name);
-    expect(user!.email).to.be.eq(input.email);
+    expect(user.id).to.be.gt(0);
+    expect(user.name).to.be.eq(input.name);
+    expect(user.email).to.be.eq(input.email);
     expect(passwordsMatch).to.be.true;
-    expect(user!.birthdate).to.be.eq(input.birthdate);
+    expect(user.birthdate).to.be.eq(input.birthdate);
 
     expect(result.data.data.createUser).to.be.deep.eq({
-      id: user!.id,
+      id: user.id,
       name: input.name,
       email: input.email,
       birthdate: input.birthdate,
