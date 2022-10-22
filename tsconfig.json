@@ -9,7 +9,7 @@
     "esModuleInterop": true,
     "strictPropertyInitialization": false,
     "forceConsistentCasingInFileNames": true,
-    "strict": true,
+    "strict": false,
     "skipLibCheck": true,
     "allowJs": true,
     "emitDecoratorMetadata": true,

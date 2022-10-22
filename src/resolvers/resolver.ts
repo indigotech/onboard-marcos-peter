@@ -1,4 +1,4 @@
-import { CreateUserInput, UserInput, UserOutput } from '../models/user-models';
+import { CreateUserInput, UserInput } from '../models/user-models';
 import { User } from '../entity/User';
 import { PasswordEncripter } from '../utils/password-encripter';
 
@@ -13,7 +13,6 @@ async function validateInput(userData: UserInput) {
   }
 
   const emailAlreadyExists = await User.findOneBy({ email: userData.email });
-  console.log(emailAlreadyExists);
 
   if (emailAlreadyExists) {
     throw new Error('Email already registered.');
@@ -37,7 +36,7 @@ export const resolvers = {
     hello: () => 'Hello, Taqtiler!',
   },
   Mutation: {
-    async createUser(_: unknown, args: CreateUserInput): Promise<UserOutput> {
+    async createUser(_: unknown, args: CreateUserInput) {
       const newUser = new User();
       newUser.name = args.userData.name;
       newUser.email = args.userData.email;
