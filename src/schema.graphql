@@ -22,6 +22,7 @@ type LoggedUser {
 input LoginInput {
   email: String!
   password: String!
+  rememberMe: Boolean
 }
 
 input UserInput {
