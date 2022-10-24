@@ -1,5 +1,6 @@
 import { ApolloServer } from 'apollo-server';
 import { AppDataSource, dataSourceSetup } from './data-source';
+import { formatError } from './errors/error-formatter';
 import { resolvers } from './resolvers/resolver';
 import { typeDefs } from './type-defs/type-defs';
 
@@ -20,6 +21,7 @@ async function runServer() {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
+    formatError,
   });
 
   await server.listen({ port });

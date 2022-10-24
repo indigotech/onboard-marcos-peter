@@ -8,7 +8,7 @@ const connection = axios.create({ baseURL: 'http://localhost:3333/' });
 const crypt = new PasswordEncripter();
 
 describe('Test createUser', () => {
-  it('should insert a user into the database', async () => {
+  it('should insert an user into the database', async () => {
     const query = `mutation CreateUser($input: UserInput!) {
       createUser(userData: $input){
         id
@@ -19,10 +19,10 @@ describe('Test createUser', () => {
     }`;
 
     const input = {
-      name: 'Marcos Peter Souza Lobato Junior',
-      email: 'marcos.peter@taqtile.com.br',
-      password: 'BoaSenha123',
-      birthdate: '1994-09-27',
+      name: 'User Test One',
+      email: 'usertestone@taqtile.com.br',
+      password: 'GoodPassword123',
+      birthdate: '2000-01-01',
     };
 
     const result = await connection.post('/graphql', { query: query, variables: { input } });
@@ -42,7 +42,5 @@ describe('Test createUser', () => {
       email: input.email,
       birthdate: input.birthdate,
     });
-
-    await User.delete({ email: input.email });
   });
 });
