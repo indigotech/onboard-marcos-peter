@@ -19,13 +19,18 @@ export async function authenticateUser(args) {
   }
 
   if (args.login.rememberMe) {
-    const token = sign({ id: user.id }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_REMEMBER_ME });
-    return { token };
+    const token = sign({ id: user.id, name: user.name, email: user.email }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_REMEMBER_ME,
+    });
+    console.info(`[SERVER] - User logged in: ${user.name}`);
+
+    return { user, token };
   }
 
   const token = sign({ id: user.id, name: user.name, email: user.email }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
+  console.info(`[SERVER] - User logged in: ${user.name}`);
   return { user, token };
 }
