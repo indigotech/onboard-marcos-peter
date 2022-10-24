@@ -1,4 +1,4 @@
-import { CreateUserInput, UserInput } from '../models/user-models';
+import { CreateUserInput, UserInput, LoginInput } from '../models/user-models';
 import { User } from '../entity/User';
 import { PasswordEncripter } from '../utils/password-encripter';
 import { CustomError } from '../errors/error-formatter';
@@ -48,6 +48,21 @@ export const resolvers = {
       await validateInput(args.userData);
       await User.save(newUser);
       return newUser;
+    },
+    async login(_: unknown, args: { login: LoginInput }) {
+      const user = await User.findOneBy({ email: args.login.email });
+
+      if (!user) {
+        throw new CustomError('User not found', 404);
+      }
+
+      const passwordMatch = await crypt.isEqual(args.login.password, user.password);
+
+      if (!passwordMatch) {
+        throw new CustomError('Invalid credentials. Wrong password.', 401);
+      }
+
+      return { user, token: 'the_token' };
     },
   },
 };

@@ -13,6 +13,11 @@ export const typeDefs = gql`
     birthdate: String!
   }
 
+  type LoggedUser {
+    user: User!
+    token: String!
+  }
+
   input UserInput {
     name: String!
     email: String!
@@ -20,7 +25,13 @@ export const typeDefs = gql`
     birthdate: String!
   }
 
+  input LoginInput {
+    email: String!
+    password: String!
+  }
+
   type Mutation {
     createUser(userData: UserInput!): User!
+    login(login: LoginInput): LoggedUser!
   }
 `;
