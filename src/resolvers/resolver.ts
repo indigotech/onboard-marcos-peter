@@ -53,7 +53,7 @@ export const resolvers = {
       const user = await User.findOneBy({ email: args.login.email });
 
       if (!user) {
-        throw new CustomError('User not found', 404);
+        throw new CustomError('User not found.', 404);
       }
 
       const passwordMatch = await crypt.isEqual(args.login.password, user.password);
