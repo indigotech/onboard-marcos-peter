@@ -4,6 +4,7 @@ type Query {
 
 type Mutation {
   createUser(user: UserInput): User!
+  login(login: LoginInput): LoggedUser!
 }
 
 type User {
@@ -11,6 +12,16 @@ type User {
   name: String!
   email: String!
   birthdate: String!
+}
+
+type LoggedUser {
+  user: User!
+  token: String!
+}
+
+input LoginInput {
+  email: String!
+  password: String!
 }
 
 input UserInput {

@@ -15,3 +15,8 @@ export interface UserOutput {
 export interface CreateUserInput {
   userData: UserInput;
 }
+
+export interface LoginInput {
+  email: string;
+  password: string;
+}
