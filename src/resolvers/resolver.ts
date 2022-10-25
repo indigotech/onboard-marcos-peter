@@ -6,7 +6,7 @@ import { CustomError } from '../errors/error-formatter';
 const crypt = new PasswordEncripter();
 const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
 
-async function validateInput(userData: UserInput) {
+export async function validateInput(userData: UserInput) {
   if (!passwordRegex.test(userData.password)) {
     throw new CustomError(
       'Password must have between 8 and 16 characters long and must have at least one uppercase, one lowercase letter and one digit.',
