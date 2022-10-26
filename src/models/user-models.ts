@@ -21,3 +21,8 @@ export interface LoginInput {
   password: string;
   rememberMe: boolean;
 }
+
+export interface LoginOutput {
+  user: UserOutput;
+  token: string;
+}

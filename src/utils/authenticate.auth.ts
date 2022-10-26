@@ -2,8 +2,9 @@ import { User } from '../entity/User';
 import { CustomError } from '../errors/error-formatter';
 import { PasswordEncripter } from '../utils/password-encripter';
 import { sign } from 'jsonwebtoken';
+import { LoginInput, LoginOutput } from '../models/user-models';
 
-export async function authenticateUser(args) {
+export async function authenticateUser(args: { login: LoginInput }): Promise<Partial<LoginOutput>> {
   const crypt = new PasswordEncripter();
 
   const user = await User.findOneBy({ email: args.login.email });
@@ -39,6 +40,5 @@ export async function authenticateUser(args) {
     },
   );
 
-  console.info(`[SERVER] - User logged in: ${user.name}`);
   return { user, token };
 }

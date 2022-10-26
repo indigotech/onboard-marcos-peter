@@ -50,8 +50,8 @@ export const resolvers = {
       await User.save(newUser);
       return newUser;
     },
-    async login(_: unknown, args: { login: LoginInput }) {
-      return await authenticateUser(args);
+    login(_: unknown, args: { login: LoginInput }) {
+      return authenticateUser(args);
     },
   },
 };
