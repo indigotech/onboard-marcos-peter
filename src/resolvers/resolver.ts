@@ -3,6 +3,7 @@ import { User } from '../entity/User';
 import { PasswordEncripter } from '../utils/password-encripter';
 import { CustomError } from '../errors/error-formatter';
 import { authenticateUser } from '../utils/authenticate.auth';
+import { getUserId } from '../utils/jwt-utils';
 
 const crypt = new PasswordEncripter();
 const passwordRegex = new RegExp(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])[0-9a-zA-Z]{8,16}$/);
@@ -39,7 +40,10 @@ export const resolvers = {
     hello: () => 'Hello, Taqtiler!',
   },
   Mutation: {
-    async createUser(_: unknown, args: CreateUserInput) {
+    async createUser(_: unknown, args: CreateUserInput, context) {
+      if (!getUserId(context.token)) {
+        throw new CustomError('Not authenticated', 401);
+      }
       const newUser = new User();
       newUser.name = args.userData.name;
       newUser.email = args.userData.email;

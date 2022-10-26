@@ -22,6 +22,12 @@ async function runServer() {
     typeDefs,
     resolvers,
     formatError,
+    context: ({ req }) => {
+      const token = req.headers.authorization;
+      if (token) {
+        return { token };
+      }
+    },
   });
 
   await server.listen({ port });
