@@ -4,20 +4,18 @@ import { expect } from 'chai';
 import { User } from '../src/entity/User';
 import { PasswordEncripter } from '../src/utils/password-encripter';
 
-const connection = axios.create({ baseURL: 'http://localhost:3333/' });
-const crypt = new PasswordEncripter();
-
 describe('Test createUser', () => {
+  const connection = axios.create({ baseURL: 'http://localhost:3333/' });
+  const crypt = new PasswordEncripter();
+  const query = `mutation CreateUser($input: UserInput!) {
+    createUser(userData: $input){
+      id
+      name
+      email
+      birthdate
+    }
+  }`;
   it('should insert an user into the database', async () => {
-    const query = `mutation CreateUser($input: UserInput!) {
-      createUser(userData: $input){
-        id
-        name
-        email
-        birthdate
-      }
-    }`;
-
     const input = {
       name: 'User Test One',
       email: 'usertestone@taqtile.com.br',
@@ -62,15 +60,6 @@ describe('Test createUser', () => {
 
     await User.save(newUser);
 
-    const query = `mutation CreateUser($input: UserInput!) {
-      createUser(userData: $input){
-        id
-        name
-        email
-        birthdate
-      }
-    }`;
-
     const result = await connection.post('/graphql', { query: query, variables: { input } });
 
     expect(result.data.errors).to.be.deep.eq([
@@ -82,15 +71,6 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an invalid password', async () => {
-    const query = `mutation CreateUser($input: UserInput!) {
-      createUser(userData: $input){
-        id
-        name
-        email
-        birthdate
-      }
-    }`;
-
     const input = {
       name: 'User Test One',
       email: 'usertestone@taqtile.com.br',
@@ -110,15 +90,6 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an short name', async () => {
-    const query = `mutation CreateUser($input: UserInput!) {
-      createUser(userData: $input){
-        id
-        name
-        email
-        birthdate
-      }
-    }`;
-
     const input = {
       name: 'Us',
       email: 'usertesttwo@taqtile.com.br',
@@ -137,15 +108,6 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an only spaces name', async () => {
-    const query = `mutation CreateUser($input: UserInput!) {
-      createUser(userData: $input){
-        id
-        name
-        email
-        birthdate
-      }
-    }`;
-
     const input = {
       name: '         ',
       email: 'usertestthree@taqtile.com.br',
@@ -164,15 +126,6 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an invalide birthdate', async () => {
-    const query = `mutation CreateUser($input: UserInput!) {
-      createUser(userData: $input){
-        id
-        name
-        email
-        birthdate
-      }
-    }`;
-
     const input = {
       name: 'User Test Four',
       email: 'usertestFour@taqtile.com.br',

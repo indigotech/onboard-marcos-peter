@@ -8,7 +8,20 @@ const connection = axios.create({ baseURL: 'http://localhost:3333/' });
 const crypt = new PasswordEncripter();
 
 describe('Test User Login', () => {
-  it('should authenticate a user ', async () => {
+  let user: User;
+
+  const query = `mutation Login($login: LoginInput) {
+    login(login: $login) {
+      user {
+        id
+        name
+        email
+        birthdate
+      }
+      token
+    }
+  }`;
+  before(async () => {
     const input = {
       name: 'User Test One',
       email: 'usertestone@taqtile.com.br',
@@ -16,26 +29,18 @@ describe('Test User Login', () => {
       birthdate: '2000-01-01',
     };
 
-    const newUser = new User();
-    newUser.name = input.name;
-    newUser.email = input.email;
-    newUser.password = await crypt.encrypt(input.password);
-    newUser.birthdate = input.birthdate;
+    const passwordHashed = await crypt.encrypt(input.password);
 
-    await User.save(newUser);
+    const newUser = Object.assign(new User(), { ...input, password: passwordHashed });
 
-    const query = `mutation Login($login: LoginInput) {
-      login(login: $login) {
-        user {
-          id
-          name
-          email
-          birthdate
-        }
-        token
-      }
-    }`;
+    user = await User.save(newUser);
+  });
 
+  after(async () => {
+    await User.delete(user.id);
+  });
+
+  it('should authenticate a user ', async () => {
     const login = {
       email: 'usertestone@taqtile.com.br',
       password: 'GoodPassword123',
@@ -55,38 +60,9 @@ describe('Test User Login', () => {
     });
 
     expect(result.data.data.login.token).to.be.deep.eq('the_token');
-
-    await User.delete(user.id);
   });
 
   it('Should return an error for trying to authenticate an user with unregistered email', async () => {
-    const input = {
-      name: 'User Test One',
-      email: 'usertestone@taqtile.com.br',
-      password: 'GoodPassword123',
-      birthdate: '2000-01-01',
-    };
-
-    const newUser = new User();
-    newUser.name = input.name;
-    newUser.email = input.email;
-    newUser.password = await crypt.encrypt(input.password);
-    newUser.birthdate = input.birthdate;
-
-    await User.save(newUser);
-
-    const query = `mutation Login($login: LoginInput) {
-      login(login: $login) {
-        user {
-          id
-          name
-          email
-          birthdate
-        }
-        token
-      }
-    }`;
-
     const login = {
       email: 'wrongusertestlogin@taqtile.com.br',
       password: 'GoodPassword123',
@@ -100,38 +76,9 @@ describe('Test User Login', () => {
         code: 404,
       },
     ]);
-
-    await User.delete({ email: login.email });
   });
 
   it('Should return an error for trying to authenticate an user with an wrong password', async () => {
-    const input = {
-      name: 'User Test One',
-      email: 'usertestone@taqtile.com.br',
-      password: 'GoodPassword123',
-      birthdate: '2000-01-01',
-    };
-
-    const newUser = new User();
-    newUser.name = input.name;
-    newUser.email = input.email;
-    newUser.password = await crypt.encrypt(input.password);
-    newUser.birthdate = input.birthdate;
-
-    await User.save(newUser);
-
-    const query = `mutation Login($login: LoginInput) {
-      login(login: $login) {
-        user {
-          id
-          name
-          email
-          birthdate
-        }
-        token
-      }
-    }`;
-
     const login = {
       email: 'usertestone@taqtile.com.br',
       password: 'WrongPassword123',
@@ -145,7 +92,5 @@ describe('Test User Login', () => {
         code: 401,
       },
     ]);
-
-    await User.delete({ email: login.email });
   });
 });
