@@ -3,7 +3,6 @@ import axios from 'axios';
 import { expect } from 'chai';
 import { User } from '../src/entity/User';
 import { PasswordEncripter } from '../src/utils/password-encripter';
-import { validateInput } from '../src/resolvers/resolver';
 
 const connection = axios.create({ baseURL: 'http://localhost:3333/' });
 const crypt = new PasswordEncripter();
@@ -48,8 +47,6 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an existing email', async () => {
-    const crypt = new PasswordEncripter();
-
     const input = {
       name: 'User Test One',
       email: 'usertestone@taqtile.com.br',
@@ -63,7 +60,6 @@ describe('Test createUser', () => {
     newUser.password = await crypt.encrypt(input.password);
     newUser.birthdate = input.birthdate;
 
-    await validateInput(input);
     await User.save(newUser);
 
     const query = `mutation CreateUser($input: UserInput!) {
@@ -83,8 +79,6 @@ describe('Test createUser', () => {
         code: 409,
       },
     ]);
-
-    await User.delete({ email: input.email });
   });
 
   it('Should return an error for trying to create an user with an invalid password', async () => {

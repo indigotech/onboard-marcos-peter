@@ -8,4 +8,5 @@ before('[SERVER] Starting server', async function () {
 });
 
 require('./create-user.test');
+require('./login.test');
 require('./hello.test');
