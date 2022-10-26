@@ -7,5 +7,6 @@ before('[SERVER] Starting server', async function () {
   await setup();
 });
 
-require('./hello.test');
 require('./create-user.test');
+require('./login.test');
+require('./hello.test');

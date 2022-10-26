@@ -1,5 +1,4 @@
 import * as bcrypt from 'bcrypt';
-
 export class PasswordEncripter {
   public async encrypt(password: string): Promise<string> {
     const salt = await bcrypt.genSalt(10);
