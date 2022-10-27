@@ -19,26 +19,9 @@ export async function authenticateUser(args: { login: LoginInput }): Promise<Par
     throw new CustomError('Invalid credentials. Wrong email or password.', 401);
   }
 
-  if (args.login.rememberMe) {
-    const token = sign(
-      { iss: 'onboard-marcos-peter-API', sub: { id: user.id, name: user.name, email: user.email } },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: process.env.JWT_EXTENDED_EXPIRATION,
-      },
-    );
-    console.info(`[SERVER] - User logged in: ${user.name}`);
-
-    return { user, token };
-  }
-
-  const token = sign(
-    { iss: 'onboard-marcos-peter-API', sub: { id: user.id, name: user.name, email: user.email } },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_EXPIRES_IN,
-    },
-  );
+  const token = sign({ iss: 'onboard-marcos-peter-API', sub: { id: user.id } }, process.env.JWT_SECRET, {
+    expiresIn: args.login.rememberMe ? process.env.JWT_EXTENDED_EXPIRATION : process.env.JWT_EXPIRES_IN,
+  });
 
   return { user, token };
 }
