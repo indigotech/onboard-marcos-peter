@@ -15,6 +15,7 @@ describe('Test createUser', () => {
       birthdate
     }
   }`;
+
   it('should insert an user into the database', async () => {
     const input = {
       name: 'User Test One',

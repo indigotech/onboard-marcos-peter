@@ -59,7 +59,7 @@ describe('Test User Login', () => {
       birthdate: user.birthdate,
     });
 
-    expect(result.data.data.login.token).to.be.deep.eq('the_token');
+    expect(result.data.data.login.token.length).to.be.gt(0);
   });
 
   it('Should return an error for trying to authenticate an user with unregistered email', async () => {
@@ -88,7 +88,7 @@ describe('Test User Login', () => {
 
     expect(result.data.errors).to.be.deep.eq([
       {
-        message: 'Invalid credentials. Wrong password.',
+        message: 'Invalid credentials. Wrong email or password.',
         code: 401,
       },
     ]);

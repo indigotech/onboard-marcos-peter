@@ -24,7 +24,7 @@ export async function authenticateUser(args: { login: LoginInput }): Promise<Par
       { iss: 'onboard-marcos-peter-API', sub: { id: user.id, name: user.name, email: user.email } },
       process.env.JWT_SECRET,
       {
-        expiresIn: process.env.JWT_REMEMBER_ME,
+        expiresIn: process.env.JWT_EXTENDED_EXPIRATION,
       },
     );
     console.info(`[SERVER] - User logged in: ${user.name}`);
