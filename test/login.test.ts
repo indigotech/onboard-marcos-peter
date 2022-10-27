@@ -7,7 +7,7 @@ import { PasswordEncripter } from '../src/utils/password-encripter';
 const connection = axios.create({ baseURL: 'http://localhost:3333/' });
 const crypt = new PasswordEncripter();
 
-describe('Test User Login', () => {
+describe('Test User Login Mutation', () => {
   let user: User;
 
   const query = `mutation Login($login: LoginInput) {
@@ -40,7 +40,7 @@ describe('Test User Login', () => {
     await User.delete(user.id);
   });
 
-  it('should authenticate a user ', async () => {
+  it('Should authenticate a user ', async () => {
     const login = {
       email: 'usertestone@taqtile.com.br',
       password: 'GoodPassword123',

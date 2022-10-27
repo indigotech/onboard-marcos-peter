@@ -2,7 +2,7 @@ import axios from 'axios';
 import { expect } from 'chai';
 import 'mocha';
 
-describe('Users query', function () {
+describe('Hello query', function () {
   it('Hello query:', async function () {
     const endpoint = 'http://localhost:3333/';
     const query = `query Hello{
