@@ -6,7 +6,16 @@ const crypt = new PasswordEncripter();
 
 export const resolvers = {
   Query: {
-    users: async () => await User.find(),
+    async user(_: unknown, args: { id: number }, context) {
+      if (!getUserId(context.token)) {
+        throw new CustomError('Not authenticated', 401);
+      }
+      const user = await User.findOneBy({ id: args.id });
+      if (!user) {
+        throw new CustomError('User not found', 404);
+      }
+      return user;
+    },
     hello: () => 'Hello, Taqtiler!',
   },
   Mutation: {
