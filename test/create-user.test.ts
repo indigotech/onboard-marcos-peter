@@ -25,7 +25,7 @@ describe('Test createUser Mutation', () => {
     token = generateToken(1, false);
   });
 
-  beforeEach(() => {
+  beforeEach(async () => {
     input = {
       name: 'User Test One',
       email: 'usertestone@taqtile.com.br',
@@ -152,7 +152,7 @@ describe('Test createUser Mutation', () => {
   });
 
   it('Should return an error for trying to create an user with an only spaces name', async () => {
-    input.name = '        ';
+    input.name = '         ';
     const result = await connection.post(
       '/graphql',
       { query: query, variables: { input } },
