@@ -2,8 +2,7 @@ import 'mocha';
 import axios from 'axios';
 import { expect } from 'chai';
 import { User } from '../src/entity/User';
-import { PasswordEncripter } from '../src/utils/password-encripter';
-import { generateToken } from '../src/utils/jwt-utils';
+import { generateToken, PasswordEncripter } from '../src/utils';
 import { UserInput } from '../src/models/user-models';
 
 describe('Test createUser Mutation', () => {
@@ -50,10 +49,10 @@ describe('Test createUser Mutation', () => {
     const passwordsMatch = await crypt.isEqual(input.password, user.password);
 
     expect(user.id).to.be.gt(0);
-    expect(user.name).to.be.eq(input.name);
-    expect(user.email).to.be.eq(input.email);
+    expect(user.name).to.be.deep.eq(input.name);
+    expect(user.email).to.be.deep.eq(input.email);
     expect(passwordsMatch).to.be.true;
-    expect(user.birthdate).to.be.eq(input.birthdate);
+    expect(user.birthdate).to.be.deep.eq(input.birthdate);
     expect(result.data.data.createUser).to.be.deep.eq({
       id: user.id,
       name: input.name,
@@ -67,7 +66,10 @@ describe('Test createUser Mutation', () => {
   it('Should return an error for trying to create an user without passing a token', async () => {
     const result = await connection.post('/graphql', { query: query, variables: { input } });
 
-    expect(result.data.errors[0].message).to.be.eq('No token found');
+    expect(result.data.errors[0]).to.be.deep.eq({
+      message: 'No token found',
+      code: 401,
+    });
   });
 
   it('Should return an error for trying to create an user with a random token', async () => {
@@ -81,7 +83,11 @@ describe('Test createUser Mutation', () => {
       },
     );
 
-    expect(result.data.errors[0].additionalInfo).to.be.eq('jwt malformed');
+    expect(result.data.errors[0]).to.be.deep.eq({
+      message: 'Internal Server Error',
+      code: 500,
+      additionalInfo: 'jwt malformed',
+    });
   });
 
   it('Should return an error for trying to create an user with an invalid token', async () => {
@@ -96,7 +102,11 @@ describe('Test createUser Mutation', () => {
       },
     );
 
-    expect(result.data.errors[0].additionalInfo).to.be.eq('invalid token');
+    expect(result.data.errors[0]).to.be.deep.eq({
+      message: 'Internal Server Error',
+      code: 500,
+      additionalInfo: 'invalid token',
+    });
   });
 
   it('Should return an error for trying to create an user with an existing email', async () => {

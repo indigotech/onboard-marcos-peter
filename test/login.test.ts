@@ -2,7 +2,7 @@ import 'mocha';
 import axios from 'axios';
 import { expect } from 'chai';
 import { User } from '../src/entity/User';
-import { PasswordEncripter } from '../src/utils/password-encripter';
+import { PasswordEncripter } from '../src/utils';
 
 const connection = axios.create({ baseURL: 'http://localhost:3333/' });
 const crypt = new PasswordEncripter();

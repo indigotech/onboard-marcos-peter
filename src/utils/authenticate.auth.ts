@@ -1,8 +1,7 @@
 import { User } from '../entity/User';
 import { CustomError } from '../errors/error-formatter';
-import { PasswordEncripter } from '../utils/password-encripter';
+import { generateToken, PasswordEncripter } from '../utils';
 import { LoginInput, LoginOutput } from '../models/user-models';
-import { generateToken } from '../utils/jwt-utils';
 
 export async function authenticateUser(args: { login: LoginInput }): Promise<Partial<LoginOutput>> {
   const crypt = new PasswordEncripter();
