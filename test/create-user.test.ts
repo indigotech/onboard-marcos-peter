@@ -2,9 +2,10 @@ import 'mocha';
 import axios from 'axios';
 import { expect } from 'chai';
 import { User } from '../src/entity/User';
-import { PasswordEncripter } from '../src/utils/password-encripter';
+import { generateToken, PasswordEncripter } from '../src/utils';
+import { UserInput } from '../src/models/user-models';
 
-describe('Test createUser', () => {
+describe('Test createUser Mutation', () => {
   const connection = axios.create({ baseURL: 'http://localhost:3333/' });
   const crypt = new PasswordEncripter();
   const query = `mutation CreateUser($input: UserInput!) {
@@ -16,25 +17,42 @@ describe('Test createUser', () => {
     }
   }`;
 
-  it('should insert an user into the database', async () => {
-    const input = {
+  let token: string;
+  let input: UserInput;
+
+  before(async () => {
+    token = generateToken(1, false);
+  });
+
+  beforeEach(async () => {
+    input = {
       name: 'User Test One',
       email: 'usertestone@taqtile.com.br',
       password: 'GoodPassword123',
       birthdate: '2000-01-01',
     };
+  });
 
-    const result = await connection.post('/graphql', { query: query, variables: { input } });
+  afterEach(async () => {
+    await User.delete({ email: input.email });
+  });
+
+  it('Should insert an user into the database', async () => {
+    const result = await connection.post(
+      '/graphql',
+      { query: query, variables: { input } },
+      { headers: { Authorization: token } },
+    );
+
     const user = await User.findOneBy({ email: input.email });
 
     const passwordsMatch = await crypt.isEqual(input.password, user.password);
 
     expect(user.id).to.be.gt(0);
-    expect(user.name).to.be.eq(input.name);
-    expect(user.email).to.be.eq(input.email);
+    expect(user.name).to.be.deep.eq(input.name);
+    expect(user.email).to.be.deep.eq(input.email);
     expect(passwordsMatch).to.be.true;
-    expect(user.birthdate).to.be.eq(input.birthdate);
-
+    expect(user.birthdate).to.be.deep.eq(input.birthdate);
     expect(result.data.data.createUser).to.be.deep.eq({
       id: user.id,
       name: input.name,
@@ -42,26 +60,65 @@ describe('Test createUser', () => {
       birthdate: input.birthdate,
     });
 
-    await User.delete({ email: input.email });
+    await User.delete({ id: user.id });
+  });
+
+  it('Should return an error for trying to create an user without passing a token', async () => {
+    const result = await connection.post('/graphql', { query: query, variables: { input } });
+
+    expect(result.data.errors[0]).to.be.deep.eq({
+      message: 'No token found',
+      code: 401,
+    });
+  });
+
+  it('Should return an error for trying to create an user with a random token', async () => {
+    const result = await connection.post(
+      '/graphql',
+      { query: query, variables: { input } },
+      {
+        headers: {
+          Authorization: 'invalid token',
+        },
+      },
+    );
+
+    expect(result.data.errors[0]).to.be.deep.eq({
+      message: 'Internal Server Error',
+      code: 500,
+      additionalInfo: 'jwt malformed',
+    });
+  });
+
+  it('Should return an error for trying to create an user with an invalid token', async () => {
+    const result = await connection.post(
+      '/graphql',
+      { query: query, variables: { input } },
+      {
+        headers: {
+          Authorization:
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVqCJ9.eyJpc3MiOiJvbmJvYXJkLW1hcmNvcy1wZXRlci1BUEkiLCJzdWIiOnsiaWQiOjI4LCJuYW1lIjoiTWFyY29zIFBldGVyIiwiZW1haWwiOiJtYXJjb3MucGV0ZXJAdGFxdGlsZS5jb20uYnIifSwiaWF0IjoxNjY2ODI3NDIxLCJleHAiOjE2NjY5MTM4MjF9.WBaxagf6qcgiTGrLKBHmkxQXxffWF0UnNh_oJidUf7ws',
+        },
+      },
+    );
+
+    expect(result.data.errors[0]).to.be.deep.eq({
+      message: 'Internal Server Error',
+      code: 500,
+      additionalInfo: 'invalid token',
+    });
   });
 
   it('Should return an error for trying to create an user with an existing email', async () => {
-    const input = {
-      name: 'User Test One',
-      email: 'usertestone@taqtile.com.br',
-      password: 'GoodPassword123',
-      birthdate: '2000-01-01',
-    };
-
-    const newUser = new User();
-    newUser.name = input.name;
-    newUser.email = input.email;
-    newUser.password = await crypt.encrypt(input.password);
-    newUser.birthdate = input.birthdate;
+    const newUser = Object.assign(new User(), { ...input, password: await crypt.encrypt(input.password) });
 
     await User.save(newUser);
 
-    const result = await connection.post('/graphql', { query: query, variables: { input } });
+    const result = await connection.post(
+      '/graphql',
+      { query: query, variables: { input } },
+      { headers: { Authorization: token } },
+    );
 
     expect(result.data.errors).to.be.deep.eq([
       {
@@ -72,14 +129,12 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an invalid password', async () => {
-    const input = {
-      name: 'User Test One',
-      email: 'usertestone@taqtile.com.br',
-      password: 'GoodPassword',
-      birthdate: '2000-01-01',
-    };
-
-    const result = await connection.post('/graphql', { query: query, variables: { input } });
+    input.password = 'WrongPassword';
+    const result = await connection.post(
+      '/graphql',
+      { query: query, variables: { input } },
+      { headers: { Authorization: token } },
+    );
 
     expect(result.data.errors).to.be.deep.eq([
       {
@@ -91,14 +146,12 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an short name', async () => {
-    const input = {
-      name: 'Us',
-      email: 'usertesttwo@taqtile.com.br',
-      password: 'GoodPassword123',
-      birthdate: '2000-01-01',
-    };
-
-    const result = await connection.post('/graphql', { query: query, variables: { input } });
+    input.name = 'Us';
+    const result = await connection.post(
+      '/graphql',
+      { query: query, variables: { input } },
+      { headers: { Authorization: token } },
+    );
 
     expect(result.data.errors).to.be.deep.eq([
       {
@@ -109,14 +162,12 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an only spaces name', async () => {
-    const input = {
-      name: '         ',
-      email: 'usertestthree@taqtile.com.br',
-      password: 'GoodPassword123',
-      birthdate: '2000-01-01',
-    };
-
-    const result = await connection.post('/graphql', { query: query, variables: { input } });
+    input.name = '         ';
+    const result = await connection.post(
+      '/graphql',
+      { query: query, variables: { input } },
+      { headers: { Authorization: token } },
+    );
 
     expect(result.data.errors).to.be.deep.eq([
       {
@@ -127,14 +178,12 @@ describe('Test createUser', () => {
   });
 
   it('Should return an error for trying to create an user with an invalide birthdate', async () => {
-    const input = {
-      name: 'User Test Four',
-      email: 'usertestFour@taqtile.com.br',
-      password: 'GoodPassword123',
-      birthdate: '2000-13-00',
-    };
-
-    const result = await connection.post('/graphql', { query: query, variables: { input } });
+    input.birthdate = '2000-13-00';
+    const result = await connection.post(
+      '/graphql',
+      { query: query, variables: { input } },
+      { headers: { Authorization: token } },
+    );
 
     expect(result.data.errors).to.be.deep.eq([
       {
