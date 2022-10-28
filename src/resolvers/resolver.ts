@@ -1,12 +1,20 @@
 import { CreateUserInput, LoginInput } from '../models/user-models';
 import { User } from '../entity/User';
 import { authenticateUser, getUserId, PasswordEncripter, validateInput } from '../utils';
+import { CustomError } from '../errors/error-formatter';
 
 const crypt = new PasswordEncripter();
 
 export const resolvers = {
   Query: {
-    users: async () => await User.find(),
+    async user(_: unknown, args: { id: number }, context) {
+      getUserId(context.token);
+      const user = await User.findOneBy({ id: args.id });
+      if (!user) {
+        throw new CustomError('User not found', 404);
+      }
+      return user;
+    },
     hello: () => 'Hello, Taqtiler!',
   },
   Mutation: {
