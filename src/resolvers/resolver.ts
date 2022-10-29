@@ -15,6 +15,11 @@ export const resolvers = {
       }
       return user;
     },
+    async users(_: unknown, args: { limit: number }, context) {
+      getUserId(context.token);
+      const users = await User.find({ take: args.limit });
+      return users.sort((a, b) => a.name.localeCompare(b.name));
+    },
     hello: () => 'Hello, Taqtiler!',
   },
   Mutation: {

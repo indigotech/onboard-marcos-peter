@@ -1,5 +1,6 @@
 type Query {
   user(id: ID!): User!
+  users(limit: Int = 5): [User!]!
 }
 
 type Mutation {

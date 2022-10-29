@@ -3,6 +3,7 @@ import { gql } from 'apollo-server';
 export const typeDefs = gql`
   type Query {
     user(id: Int!): User!
+    users(limit: Int = 5): [User!]!
     hello: String!
   }
 
