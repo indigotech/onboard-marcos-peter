@@ -1,4 +1,3 @@
-import 'mocha';
 import axios from 'axios';
 import { expect } from 'chai';
 import { User } from '../src/entity/User';
@@ -9,8 +8,8 @@ import { PasswordEncripter } from '../src/utils';
 describe('Test user query', () => {
   const connection = axios.create({ baseURL: 'http://localhost:3333/' });
   const crypt = new PasswordEncripter();
-  const query = `query User($userId: Int!){
-    user(id: $userId) {
+  const query = `query User($createdUserId: Int!){
+    user(id: $createdUserId) {
       id
       name
       email
@@ -18,58 +17,55 @@ describe('Test user query', () => {
     }
   }`;
 
-  let user: User;
-  let token: string;
-  let userId: number;
-  const input: UserInput = {
+  const userTestInput: UserInput = {
     name: 'User Test One',
     email: 'usertestone@taqtile.com.br',
     password: 'GoodPassword123',
     birthdate: '2000-01-01',
   };
 
+  let createdUser: User;
+  let token: string;
+  let createdUserId: number;
+
   before(async () => {
     token = generateToken(1, false);
 
-    const newUser = Object.assign(new User(), { ...input, password: await crypt.encrypt(input.password) });
+    const newUser = Object.assign(new User(), {
+      ...userTestInput,
+      password: await crypt.encrypt(userTestInput.password),
+    });
 
-    user = await User.save(newUser);
+    createdUser = await User.save(newUser);
 
-    userId = user.id;
+    createdUserId = createdUser.id;
   });
 
   after(async () => {
-    await User.delete(user.id);
+    await User.delete(createdUser.id);
   });
 
   it('Should return a existent user from database', async () => {
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { userId } },
+      { query: query, variables: { createdUserId } },
       { headers: { Authorization: token } },
     );
 
-    const passwordsMatch = await crypt.isEqual(input.password, user.password);
-
-    expect(userId).to.be.gt(0);
-    expect(user.name).to.be.deep.eq(input.name);
-    expect(user.email).to.be.deep.eq(input.email);
-    expect(passwordsMatch).to.be.true;
-    expect(user.birthdate).to.be.deep.eq(input.birthdate);
     expect(result.data.data.user).to.be.deep.eq({
-      id: user.id,
-      name: input.name,
-      email: input.email,
-      birthdate: input.birthdate,
+      id: createdUser.id,
+      name: userTestInput.name,
+      email: userTestInput.email,
+      birthdate: userTestInput.birthdate,
     });
   });
 
   it('Should return an error for trying to find an user with an inexistent id', async () => {
-    userId = 0;
+    createdUserId = 0;
 
     const result = await connection.post(
       'graphql',
-      { query: query, variables: { userId } },
+      { query: query, variables: { createdUserId } },
       { headers: { Authorization: token } },
     );
 
@@ -82,7 +78,7 @@ describe('Test user query', () => {
   });
 
   it('Should return an error for trying to execute the query without passing a token', async () => {
-    const result = await connection.post('graphql', { query: query, variables: { userId } });
+    const result = await connection.post('graphql', { query: query, variables: { createdUserId } });
 
     expect(result.data.errors).to.be.deep.eq([
       {
@@ -97,7 +93,7 @@ describe('Test user query', () => {
 
     const result = await connection.post(
       'graphql',
-      { query: query, variables: { userId } },
+      { query: query, variables: { createdUserId } },
       { headers: { Authorization: token } },
     );
 
@@ -116,7 +112,7 @@ describe('Test user query', () => {
 
     const result = await connection.post(
       'graphql',
-      { query: query, variables: { userId } },
+      { query: query, variables: { createdUserId } },
       { headers: { Authorization: token } },
     );
 

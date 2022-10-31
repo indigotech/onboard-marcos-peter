@@ -1,6 +1,5 @@
 import axios from 'axios';
 import { expect } from 'chai';
-import 'mocha';
 
 describe('Hello query', function () {
   it('Hello query:', async function () {

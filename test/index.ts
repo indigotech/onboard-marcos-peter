@@ -1,4 +1,3 @@
-import 'mocha';
 import { setup } from '../src/setup';
 import * as dotenv from 'dotenv';
 
