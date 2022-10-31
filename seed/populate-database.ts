@@ -1,14 +1,14 @@
 import * as dotenv from 'dotenv';
-import { Seed } from './seed';
+import { generateRandomUser } from './generate-random-user';
 import { setup } from '../src/setup';
 import { User } from '../src/entity/User';
 
 dotenv.config({ path: `${process.cwd()}/test.env` });
 
-async function populateDatabase(generateUsersQtt: number) {
+async function populateDatabase(usersQuantity: number) {
   await setup();
-  for (let i = 0; i < generateUsersQtt; i++) {
-    await User.save(await Seed.generateRandomUser());
+  for (let i = 0; i < usersQuantity; i++) {
+    await User.save(await generateRandomUser());
   }
   process.exit();
 }
