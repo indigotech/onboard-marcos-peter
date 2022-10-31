@@ -17,8 +17,8 @@ export const resolvers = {
     },
     async users(_: unknown, args: { limit: number }, context) {
       getUserId(context.token);
-      const users = await User.find({ take: args.limit });
-      return users.sort((a, b) => a.name.localeCompare(b.name));
+
+      return User.find({ take: args.limit, order: { name: 'ASC' } });
     },
     hello: () => 'Hello, Taqtiler!',
   },
