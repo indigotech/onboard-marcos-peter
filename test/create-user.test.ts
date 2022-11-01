@@ -1,4 +1,3 @@
-import 'mocha';
 import axios from 'axios';
 import { expect } from 'chai';
 import { User } from '../src/entity/User';
@@ -8,8 +7,8 @@ import { UserInput } from '../src/models/user-models';
 describe('Test createUser Mutation', () => {
   const connection = axios.create({ baseURL: 'http://localhost:3333/' });
   const crypt = new PasswordEncripter();
-  const query = `mutation CreateUser($input: UserInput!) {
-    createUser(userData: $input){
+  const query = `mutation CreateUser($userTestInput: UserInput!) {
+    createUser(userData: $userTestInput){
       id
       name
       email
@@ -18,14 +17,14 @@ describe('Test createUser Mutation', () => {
   }`;
 
   let token: string;
-  let input: UserInput;
+  let userTestInput: UserInput;
 
   before(async () => {
     token = generateToken(1, false);
   });
 
   beforeEach(async () => {
-    input = {
+    userTestInput = {
       name: 'User Test One',
       email: 'usertestone@taqtile.com.br',
       password: 'GoodPassword123',
@@ -34,37 +33,37 @@ describe('Test createUser Mutation', () => {
   });
 
   afterEach(async () => {
-    await User.delete({ email: input.email });
+    await User.delete({ email: userTestInput.email });
   });
 
   it('Should insert an user into the database', async () => {
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { input } },
+      { query: query, variables: { userTestInput } },
       { headers: { Authorization: token } },
     );
 
-    const user = await User.findOneBy({ email: input.email });
+    const user = await User.findOneBy({ email: userTestInput.email });
 
-    const passwordsMatch = await crypt.isEqual(input.password, user.password);
+    const passwordsMatch = await crypt.isEqual(userTestInput.password, user.password);
 
     expect(user.id).to.be.gt(0);
-    expect(user.name).to.be.deep.eq(input.name);
-    expect(user.email).to.be.deep.eq(input.email);
+    expect(user.name).to.be.deep.eq(userTestInput.name);
+    expect(user.email).to.be.deep.eq(userTestInput.email);
     expect(passwordsMatch).to.be.true;
-    expect(user.birthdate).to.be.deep.eq(input.birthdate);
+    expect(user.birthdate).to.be.deep.eq(userTestInput.birthdate);
     expect(result.data.data.createUser).to.be.deep.eq({
       id: user.id,
-      name: input.name,
-      email: input.email,
-      birthdate: input.birthdate,
+      name: userTestInput.name,
+      email: userTestInput.email,
+      birthdate: userTestInput.birthdate,
     });
 
     await User.delete({ id: user.id });
   });
 
   it('Should return an error for trying to create an user without passing a token', async () => {
-    const result = await connection.post('/graphql', { query: query, variables: { input } });
+    const result = await connection.post('/graphql', { query: query, variables: { userTestInput } });
 
     expect(result.data.errors[0]).to.be.deep.eq({
       message: 'No token found',
@@ -75,7 +74,7 @@ describe('Test createUser Mutation', () => {
   it('Should return an error for trying to create an user with a random token', async () => {
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { input } },
+      { query: query, variables: { userTestInput } },
       {
         headers: {
           Authorization: 'invalid token',
@@ -93,7 +92,7 @@ describe('Test createUser Mutation', () => {
   it('Should return an error for trying to create an user with an invalid token', async () => {
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { input } },
+      { query: query, variables: { userTestInput } },
       {
         headers: {
           Authorization:
@@ -110,13 +109,16 @@ describe('Test createUser Mutation', () => {
   });
 
   it('Should return an error for trying to create an user with an existing email', async () => {
-    const newUser = Object.assign(new User(), { ...input, password: await crypt.encrypt(input.password) });
+    const newUser = Object.assign(new User(), {
+      ...userTestInput,
+      password: await crypt.encrypt(userTestInput.password),
+    });
 
     await User.save(newUser);
 
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { input } },
+      { query: query, variables: { userTestInput } },
       { headers: { Authorization: token } },
     );
 
@@ -129,10 +131,10 @@ describe('Test createUser Mutation', () => {
   });
 
   it('Should return an error for trying to create an user with an invalid password', async () => {
-    input.password = 'WrongPassword';
+    userTestInput.password = 'WrongPassword';
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { input } },
+      { query: query, variables: { userTestInput } },
       { headers: { Authorization: token } },
     );
 
@@ -146,10 +148,10 @@ describe('Test createUser Mutation', () => {
   });
 
   it('Should return an error for trying to create an user with an short name', async () => {
-    input.name = 'Us';
+    userTestInput.name = 'Us';
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { input } },
+      { query: query, variables: { userTestInput } },
       { headers: { Authorization: token } },
     );
 
@@ -162,10 +164,10 @@ describe('Test createUser Mutation', () => {
   });
 
   it('Should return an error for trying to create an user with an only spaces name', async () => {
-    input.name = '         ';
+    userTestInput.name = '         ';
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { input } },
+      { query: query, variables: { userTestInput } },
       { headers: { Authorization: token } },
     );
 
@@ -178,10 +180,10 @@ describe('Test createUser Mutation', () => {
   });
 
   it('Should return an error for trying to create an user with an invalide birthdate', async () => {
-    input.birthdate = '2000-13-00';
+    userTestInput.birthdate = '2000-13-00';
     const result = await connection.post(
       '/graphql',
-      { query: query, variables: { input } },
+      { query: query, variables: { userTestInput } },
       { headers: { Authorization: token } },
     );
 

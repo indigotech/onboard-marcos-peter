@@ -1,4 +1,4 @@
-import 'mocha';
+import { UserInput } from './../src/models/user-models';
 import axios from 'axios';
 import { expect } from 'chai';
 import { User } from '../src/entity/User';
@@ -8,8 +8,6 @@ const connection = axios.create({ baseURL: 'http://localhost:3333/' });
 const crypt = new PasswordEncripter();
 
 describe('Test User Login Mutation', () => {
-  let user: User;
-
   const query = `mutation Login($login: LoginInput) {
     login(login: $login) {
       user {
@@ -21,23 +19,26 @@ describe('Test User Login Mutation', () => {
       token
     }
   }`;
+
+  let createdUser: User;
+
   before(async () => {
-    const input = {
+    const userTestInput: UserInput = {
       name: 'User Test One',
       email: 'usertestone@taqtile.com.br',
       password: 'GoodPassword123',
       birthdate: '2000-01-01',
     };
 
-    const passwordHashed = await crypt.encrypt(input.password);
+    const passwordHashed = await crypt.encrypt(userTestInput.password);
 
-    const newUser = Object.assign(new User(), { ...input, password: passwordHashed });
+    const newUser = Object.assign(new User(), { ...userTestInput, password: passwordHashed });
 
-    user = await User.save(newUser);
+    createdUser = await User.save(newUser);
   });
 
   after(async () => {
-    await User.delete(user.id);
+    await User.delete(createdUser.id);
   });
 
   it('Should authenticate a user ', async () => {

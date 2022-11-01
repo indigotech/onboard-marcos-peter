@@ -1,4 +1,3 @@
-import 'mocha';
 import { setup } from '../src/setup';
 import * as dotenv from 'dotenv';
 
@@ -10,3 +9,4 @@ before('[SERVER] Starting server', async function () {
 require('./login.test');
 require('./create-user.test');
 require('./hello.test');
+require('./user.test');
