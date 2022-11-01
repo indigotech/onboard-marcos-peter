@@ -1,6 +1,6 @@
 type Query {
   user(id: ID!): User!
-  users(limit: Int = 5): [User!]!
+  users(input: Pagination): UsersListOutput!
 }
 
 type Mutation {
@@ -20,10 +20,22 @@ type LoggedUser {
   token: String!
 }
 
+type UsersListOutput {
+  totalUsers: Int!
+  before: Int!
+  after: Int!
+  users: [User]!
+}
+
 input LoginInput {
   email: String!
   password: String!
   rememberMe: Boolean
+}
+
+input Pagination {
+  limit: Int = 5
+  skip: Int = 0
 }
 
 input UserInput {
