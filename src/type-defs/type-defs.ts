@@ -3,7 +3,7 @@ import { gql } from 'apollo-server';
 export const typeDefs = gql`
   type Query {
     user(id: Int!): User!
-    users(input: Pagination): UsersListOutput!
+    users(input: Pagination): UsersListOutput
     hello: String!
   }
 
@@ -15,10 +15,10 @@ export const typeDefs = gql`
   }
 
   type UsersListOutput {
-    totalUsers: Int!
-    before: Int!
-    after: Int!
-    users: [User]!
+    totalUsers: Int
+    before: Int
+    after: Int
+    users: [User]
   }
 
   type LoggedUser {
@@ -40,8 +40,8 @@ export const typeDefs = gql`
   }
 
   input Pagination {
-    limit: Int = 5
-    skip: Int = 0
+    limit: Int
+    skip: Int
   }
 
   type Mutation {

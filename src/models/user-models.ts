@@ -28,8 +28,8 @@ export interface LoginOutput {
 }
 
 export interface Pagination {
-  limit: number;
-  skip: number;
+  limit?: number;
+  skip?: number;
 }
 
 export interface UsersListOutput {
