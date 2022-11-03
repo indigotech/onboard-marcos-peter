@@ -6,7 +6,7 @@ dotenv.config({ path: `${process.cwd()}/test.env` });
 
 export async function seed() {
   await setup();
-  await populateDatabase(100);
+  await populateDatabase(2);
   process.exit();
 }
 
