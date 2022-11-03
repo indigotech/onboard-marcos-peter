@@ -15,7 +15,11 @@ export async function generateRandomUser() {
 }
 
 export async function populateDatabase(usersQuantity: number) {
+  const generatedUsers = [];
+
   for (let i = 0; i < usersQuantity; i++) {
-    await User.save(await generateRandomUser());
+    generatedUsers.push(await generateRandomUser());
   }
+
+  await User.save(generatedUsers);
 }
