@@ -4,6 +4,8 @@ import { User } from '../src/entity/User';
 import { generateToken } from '../src/utils';
 import { UserInput } from '../src/models/user-models';
 import { PasswordEncripter } from '../src/utils';
+import { generateRandomAddress } from '../seed/generate-random-address';
+import { Address } from '../src/entity/Address';
 
 describe('Test user query', () => {
   const connection = axios.create({ baseURL: 'http://localhost:3333/' });
@@ -14,6 +16,16 @@ describe('Test user query', () => {
       name
       email
       birthdate
+      addresses {
+        id
+        cep
+        street
+        streetNumber
+        complement
+        neighborhood
+        city
+        state
+      }
     }
   }`;
 
@@ -27,6 +39,7 @@ describe('Test user query', () => {
   let createdUser: User;
   let token: string;
   let createdUserId: number;
+  let newAddresses: Address[];
 
   before(async () => {
     token = generateToken(1, false);
@@ -35,6 +48,8 @@ describe('Test user query', () => {
       ...userTestInput,
       password: await crypt.encrypt(userTestInput.password),
     });
+    newAddresses = [generateRandomAddress(newUser), generateRandomAddress(newUser)];
+    newUser.addresses = newAddresses;
 
     createdUser = await User.save(newUser);
 
@@ -42,21 +57,28 @@ describe('Test user query', () => {
   });
 
   after(async () => {
-    await User.delete(createdUser.id);
+    await Address.delete({});
+    await User.delete({});
   });
 
-  it('Should return a existent user from database', async () => {
-    const result = await connection.post(
-      '/graphql',
-      { query: query, variables: { createdUserId } },
-      { headers: { Authorization: token } },
-    );
+  it('Should return a existent user and its addresses from database', async () => {
+    const result = (
+      await connection.post(
+        '/graphql',
+        { query: query, variables: { createdUserId } },
+        { headers: { Authorization: token } },
+      )
+    ).data.data.user;
 
-    expect(result.data.data.user).to.be.deep.eq({
+    const addresses = result.addresses;
+
+    expect(result.addresses.length).to.be.deep.eq(newAddresses.length);
+    expect(result).to.be.deep.eq({
       id: createdUser.id,
       name: userTestInput.name,
       email: userTestInput.email,
       birthdate: userTestInput.birthdate,
+      addresses: addresses,
     });
   });
 

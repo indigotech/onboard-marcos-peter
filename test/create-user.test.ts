@@ -3,6 +3,8 @@ import { expect } from 'chai';
 import { User } from '../src/entity/User';
 import { generateToken, PasswordEncripter } from '../src/utils';
 import { UserInput } from '../src/models/user-models';
+import { Address } from '../src/entity/Address';
+import { users } from '../src/resolvers/queries';
 
 describe('Test createUser Mutation', () => {
   const connection = axios.create({ baseURL: 'http://localhost:3333/' });
@@ -13,6 +15,16 @@ describe('Test createUser Mutation', () => {
       name
       email
       birthdate
+      addresses {
+        id
+        cep
+        street
+        streetNumber
+        complement
+        neighborhood
+        city
+        state
+      }
     }
   }`;
 
@@ -33,7 +45,8 @@ describe('Test createUser Mutation', () => {
   });
 
   afterEach(async () => {
-    await User.delete({ email: userTestInput.email });
+    await Address.delete({});
+    await User.delete({});
   });
 
   it('Should insert an user into the database', async () => {
@@ -44,6 +57,7 @@ describe('Test createUser Mutation', () => {
     );
 
     const user = await User.findOneBy({ email: userTestInput.email });
+    const addresses = result.data.data.createUser.addresses;
 
     const passwordsMatch = await crypt.isEqual(userTestInput.password, user.password);
 
@@ -57,9 +71,8 @@ describe('Test createUser Mutation', () => {
       name: userTestInput.name,
       email: userTestInput.email,
       birthdate: userTestInput.birthdate,
+      addresses: addresses,
     });
-
-    await User.delete({ id: user.id });
   });
 
   it('Should return an error for trying to create an user without passing a token', async () => {

@@ -3,6 +3,7 @@ import { expect } from 'chai';
 import { User } from '../src/entity/User';
 import { generateToken } from '../src/utils';
 import { populateDatabase } from '../seed/generate-random-user';
+import { Address } from '../src/entity/Address';
 
 describe('Test users query', () => {
   const connection = axios.create({ baseURL: 'http://localhost:3333/' });
@@ -16,6 +17,16 @@ describe('Test users query', () => {
         name
         email
         birthdate
+        addresses {
+          id
+          cep
+          street
+          streetNumber
+          complement
+          neighborhood
+          city
+          state
+        }
       }
     }
   }`;
@@ -33,10 +44,11 @@ describe('Test users query', () => {
   });
 
   after(async () => {
+    await Address.delete({});
     await User.delete({});
   });
 
-  it('Should return the users from database based on the limit parameter', async () => {
+  it('Should return the users with its addresses from database based on the limit parameter', async () => {
     limit = 25;
     const { totalUsers, before, after, users } = (
       await connection.post(
@@ -45,7 +57,7 @@ describe('Test users query', () => {
         { headers: { Authorization: token } },
       )
     ).data.data.users;
-    const usersInDatabase = await User.find({ take: limit, order: { name: 'ASC' } });
+    const usersInDatabase = await User.find({ take: limit, order: { name: 'ASC' }, relations: { addresses: true } });
 
     expect(totalUsers).to.be.equal(usersQuantity);
     expect(before).to.be.equal(defaultSkip);
@@ -59,6 +71,7 @@ describe('Test users query', () => {
         name: users[i].name,
         email: users[i].email,
         birthdate: users[i].birthdate,
+        addresses: users[i].addresses,
       });
     }
   });
@@ -87,6 +100,7 @@ describe('Test users query', () => {
         name: users[i].name,
         email: users[i].email,
         birthdate: users[i].birthdate,
+        addresses: users[i].addresses,
       });
     }
   });
@@ -109,6 +123,7 @@ describe('Test users query', () => {
         name: users[i].name,
         email: users[i].email,
         birthdate: users[i].birthdate,
+        addresses: users[i].addresses,
       });
     }
   });
