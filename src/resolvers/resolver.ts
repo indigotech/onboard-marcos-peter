@@ -19,28 +19,27 @@ export const resolvers = {
     async users(_: unknown, args: { input: Pagination }, context): Promise<UsersListOutput> {
       getUserId(context.token);
 
-      let before: number;
+      const skip = args.input?.skip ?? 0;
+      const limit = args.input?.limit ?? 5;
 
-      const { skip, limit } = Object.keys(args).length ? args.input : { skip: 0, limit: 5 };
-
-      if (limit <= 0) {
-        throw new CustomError('Limit must be greater than 0', 400);
+      if (skip <= 0) {
+        throw new CustomError('Skip must be greater than 0', 400);
       }
 
-      if (skip < 0) {
-        throw new CustomError('Skip must be a positive number', 400);
+      if (limit < 0) {
+        throw new CustomError('Limit must be a positive number', 400);
       }
 
       const [users, totalUsers] = await User.findAndCount({ skip, take: limit, order: { name: 'ASC' } });
-      const after: number = totalUsers - (before = skip) - limit;
+      const after: number = totalUsers - skip - limit;
 
       if (totalUsers <= 0 || skip >= totalUsers) {
-        throw new CustomError('No users found', 404);
+        throw new CustomError('No users found', 400);
       }
 
       return {
         totalUsers: totalUsers,
-        before: before,
+        before: skip,
         after: after < 0 ? 0 : after,
         users,
       };
