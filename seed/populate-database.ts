@@ -3,7 +3,7 @@ import { generateRandomUser } from './generate-random-user';
 import { setup } from '../src/setup';
 import { User } from '../src/entity/User';
 
-dotenv.config({ path: `${process.cwd()}/test.env` });
+dotenv.config({ path: `${process.cwd()}/.env` });
 
 async function populateDatabase(usersQuantity: number) {
   await setup();

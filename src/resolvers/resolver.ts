@@ -15,6 +15,11 @@ export const resolvers = {
       }
       return user;
     },
+    async users(_: unknown, args: { limit: number }, context) {
+      getUserId(context.token);
+
+      return User.find({ take: args.limit, order: { name: 'ASC' } });
+    },
     hello: () => 'Hello, Taqtiler!',
   },
   Mutation: {
