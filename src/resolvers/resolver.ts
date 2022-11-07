@@ -22,7 +22,7 @@ export const resolvers = {
       const skip = args.input?.skip ?? 0;
       const limit = args.input?.limit ?? 5;
 
-      if (skip <= 0) {
+      if (skip < 0) {
         throw new CustomError('Skip must be greater than 0', 400);
       }
 
@@ -31,10 +31,10 @@ export const resolvers = {
       }
 
       const [users, totalUsers] = await User.findAndCount({ skip, take: limit, order: { name: 'ASC' } });
-      const after: number = totalUsers - skip - limit;
+      const after = totalUsers - skip - limit;
 
       if (totalUsers <= 0 || skip >= totalUsers) {
-        throw new CustomError('No users found', 400);
+        return { users: [], totalUsers, before: totalUsers, after: 0 };
       }
 
       return {
