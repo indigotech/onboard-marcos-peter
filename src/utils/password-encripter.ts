@@ -1,8 +1,7 @@
 import * as bcrypt from 'bcrypt';
 export class PasswordEncripter {
   public async encrypt(password: string): Promise<string> {
-    const salt = await bcrypt.genSalt(2);
-    return bcrypt.hash(password, salt);
+    return bcrypt.hash(password, Number(process.env.HASH_SALT));
   }
 
   public async isEqual(password: string, hash: string): Promise<boolean> {

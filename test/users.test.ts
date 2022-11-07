@@ -47,11 +47,11 @@ describe('Test users query', () => {
     ).data.data.users;
     const usersInDatabase = await User.find({ take: limit, order: { name: 'ASC' } });
 
-    expect(totalUsers).to.be.deep.equal(usersQuantity);
-    expect(before).to.be.deep.equal(defaultSkip);
-    expect(after).to.be.deep.equal(usersQuantity - limit);
-    expect(users.length).to.be.deep.equal(limit);
-    expect(users.length).to.be.deep.equal(usersInDatabase.length);
+    expect(totalUsers).to.be.equal(usersQuantity);
+    expect(before).to.be.equal(defaultSkip);
+    expect(after).to.be.equal(usersQuantity - limit);
+    expect(users.length).to.be.equal(limit);
+    expect(users.length).to.be.equal(usersInDatabase.length);
 
     for (let i = 0; i < limit; i++) {
       expect(users[i]).to.be.deep.equal({
