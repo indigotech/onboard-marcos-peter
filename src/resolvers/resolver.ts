@@ -26,7 +26,7 @@ export const resolvers = {
         throw new CustomError('Skip must be greater than 0', 400);
       }
 
-      if (limit < 0) {
+      if (limit <= 0) {
         throw new CustomError('Limit must be a positive number', 400);
       }
 
