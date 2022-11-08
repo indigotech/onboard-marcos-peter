@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import { DataSource } from 'typeorm';
+import { Address } from './entity/Address';
 import { User } from './entity/User';
 
 export let AppDataSource: DataSource;
@@ -14,7 +15,7 @@ export function dataSourceSetup() {
     database: process.env.POSTGRES_DATABASE,
     synchronize: true,
     logging: false,
-    entities: [User],
+    entities: [User, Address],
     migrations: [],
     subscribers: [],
   });

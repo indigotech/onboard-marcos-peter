@@ -1,6 +1,7 @@
 import { faker } from '@faker-js/faker';
 import { User } from '../src/entity/User';
 import { PasswordEncripter } from '../src/utils';
+import { generateRandomAddress } from './generate-random-address';
 
 export async function generateRandomUser() {
   const crypt = new PasswordEncripter();
@@ -10,6 +11,7 @@ export async function generateRandomUser() {
   generatedUser.email = faker.internet.email();
   generatedUser.password = await crypt.encrypt(faker.word.noun() + faker.random.numeric(3));
   generatedUser.birthdate = String(faker.date.past(18));
+  generatedUser.addresses = [generateRandomAddress(generatedUser), generateRandomAddress(generatedUser)];
 
   return generatedUser;
 }
