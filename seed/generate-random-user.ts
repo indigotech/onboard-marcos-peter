@@ -13,3 +13,13 @@ export async function generateRandomUser() {
 
   return generatedUser;
 }
+
+export async function populateDatabase(usersQuantity: number) {
+  const generatedUsers = [];
+
+  for (let i = 0; i < usersQuantity; i++) {
+    generatedUsers.push(await generateRandomUser());
+  }
+
+  await User.save(generatedUsers);
+}

@@ -1,4 +1,3 @@
-import { UsersListOutput } from './../models/user-models';
 import { CreateUserInput, LoginInput, Pagination } from '../models/user-models';
 import { User } from '../entity/User';
 import { authenticateUser, getUserId, PasswordEncripter, validateInput } from '../utils';
@@ -16,7 +15,7 @@ export const resolvers = {
       }
       return user;
     },
-    async users(_: unknown, args: { input: Pagination }, context): Promise<UsersListOutput> {
+    async users(_: unknown, args: { input: Pagination }, context) {
       getUserId(context.token);
 
       const skip = args.input?.skip ?? 0;
@@ -29,7 +28,6 @@ export const resolvers = {
       if (limit <= 0) {
         throw new CustomError('Limit must be a positive number', 400);
       }
-
       const [users, totalUsers] = await User.findAndCount({ skip, take: limit, order: { name: 'ASC' } });
       const after = totalUsers - skip - limit;
 
@@ -39,7 +37,7 @@ export const resolvers = {
 
       return {
         totalUsers: totalUsers,
-        before: skip,
+        before,
         after: after < 0 ? 0 : after,
         users,
       };

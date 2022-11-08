@@ -3,7 +3,7 @@
     "dev": "ts-node-dev --respawn src/index.ts",
     "start": "tsc && nodemon ./dist/index.js",
     "typeorm": "typeorm-ts-node-commonjs",
-    "test": "mocha -r ts-node/register 'test/index.ts'",
+    "test": "mocha -r ts-node/register 'test/index.ts' --exit",
     "seeds": "ts-node seed/populate-database.ts"
   },
   "dependencies": {
