@@ -26,3 +26,15 @@ export interface LoginOutput {
   user: UserOutput;
   token: string;
 }
+
+export interface Pagination {
+  limit: number;
+  skip: number;
+}
+
+export interface UsersListOutput {
+  totalUsers: number;
+  before: number;
+  after: number;
+  users: UserOutput[];
+}

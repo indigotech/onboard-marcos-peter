@@ -1,4 +1,5 @@
-import { CreateUserInput, LoginInput } from '../models/user-models';
+import { UsersListOutput } from './../models/user-models';
+import { CreateUserInput, LoginInput, Pagination } from '../models/user-models';
 import { User } from '../entity/User';
 import { authenticateUser, getUserId, PasswordEncripter, validateInput } from '../utils';
 import { CustomError } from '../errors/error-formatter';
@@ -15,10 +16,33 @@ export const resolvers = {
       }
       return user;
     },
-    async users(_: unknown, args: { limit: number }, context) {
+    async users(_: unknown, args: { input: Pagination }, context): Promise<UsersListOutput> {
       getUserId(context.token);
 
-      return User.find({ take: args.limit, order: { name: 'ASC' } });
+      const skip = args.input?.skip ?? 0;
+      const limit = args.input?.limit ?? 5;
+
+      if (skip < 0) {
+        throw new CustomError('Skip must be greater than 0', 400);
+      }
+
+      if (limit <= 0) {
+        throw new CustomError('Limit must be a positive number', 400);
+      }
+
+      const [users, totalUsers] = await User.findAndCount({ skip, take: limit, order: { name: 'ASC' } });
+      const after = totalUsers - skip - limit;
+
+      if (totalUsers <= 0 || skip >= totalUsers) {
+        return { users: [], totalUsers, before: totalUsers, after: 0 };
+      }
+
+      return {
+        totalUsers: totalUsers,
+        before: skip,
+        after: after < 0 ? 0 : after,
+        users,
+      };
     },
     hello: () => 'Hello, Taqtiler!',
   },
