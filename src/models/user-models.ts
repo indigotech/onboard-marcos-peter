@@ -10,6 +10,17 @@ export interface UserOutput {
   email: string;
   id: number;
   birthdate: string;
+  addresses: Address[];
+}
+
+export interface Address {
+  cep: string;
+  street: string;
+  streetNumber: string;
+  complement: string;
+  neighborhood: string;
+  city: string;
+  state: string;
 }
 
 export interface CreateUserInput {
